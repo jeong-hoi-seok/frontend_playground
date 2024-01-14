@@ -10,7 +10,7 @@ const App = ()=>{
     <div>
       <Router>
         <ul className='tab'>
-          <Link to='/home'><li>home</li></Link>
+          <Link to='/home'><li>home1</li></Link>
           <Link to='/subpage'><li>SubPage</li></Link>
         </ul>
         <div className='contents'>
