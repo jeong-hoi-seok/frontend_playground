@@ -10,7 +10,7 @@ const Header = ()=>{
                     <Link to="/">current</Link>
                 </li>
                 <li>
-                    <Link to="pages/mypages/ResetPasswd">ResetPasswd</Link>
+                    <Link to="/mypage/ResetPasswd">ResetPasswd</Link>
                 </li>
                 <li>
                     <Link to="/About">about</Link>
