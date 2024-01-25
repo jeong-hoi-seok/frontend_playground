@@ -7,6 +7,7 @@ import Header from './pages/Header';
 import About from './pages/About';
 import Detail from './pages/Detail';
 import ResetPasswd from './pages/mypage/ResetPasswd';
+import Mypage from './pages/mypage/Mypage';
 
 
 
@@ -21,7 +22,13 @@ function App() {
 
           <Route path='/Home' element={<About/>}></Route>
           <Route path='/Detail' element={<Detail/>}></Route>
-          <Route path='/mypage/ResetPasswd' element={<ResetPasswd/>}></Route>
+
+
+          <Route path='/mypage'>
+            <Route index element={<Mypage/>}></Route>
+            <Route path='/mypage/resetPasswd' element={<ResetPasswd/>}></Route>
+          </Route>
+          
         </Routes>
       </BrowserRouter>
     </div>
