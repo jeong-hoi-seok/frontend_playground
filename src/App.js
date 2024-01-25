@@ -26,7 +26,7 @@ function App() {
 
           <Route path='/mypage'>
             <Route index element={<Mypage/>}></Route>
-            <Route path='/mypage/resetPasswd' element={<ResetPasswd/>}></Route>
+            <Route path='resetPasswd' element={<ResetPasswd/>}></Route>
           </Route>
           
         </Routes>
