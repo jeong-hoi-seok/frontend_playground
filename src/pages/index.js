@@ -2,10 +2,18 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import Card from "@/components/Card";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+
+  [1,2,3,4,5]
+  var img = '1'
+  const d = () => {
+
+  }
+
   return (
     <>
       <Head>
@@ -17,8 +25,15 @@ export default function Home() {
       <main className={`${styles.main} ${inter.className}`}>
         <div className={styles.description}>
           <p>
+            {
+              img.map((d) => {
+                return (
+                  <Card/>
+                )
+              })
+            }
             Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.js</code>
+            <code className={styles.code}>{img}</code>
           </p>
           <div>
             <a
