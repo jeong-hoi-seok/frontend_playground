@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import {useRouter} from 'next/router'
 
 const Brand = ()=>{
     const router = useRouter();
     const [counter, setCounter] = useState(0);
+    
     return (
         <>
             <h1>Hello {counter}</h1>
