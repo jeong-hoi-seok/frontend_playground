@@ -14,6 +14,5 @@ const TestPage = ()=>{
 }
 
 const TestBlock = styled.div`
-    height: ;
 `
 export default TestPage;

@@ -6,16 +6,20 @@ const Card = () => {
     let dataArray = [];
     for(let i = 0; i < 10; i++)
     {
-        dataArray.push(`card ${i}`);
+        let test = {
+            cardNum : `${i}time`
+        }
+        dataArray.push(test);
     }
     return (
         <Area>
         {
-            dataArray.map((ele, i)=>{
+            dataArray.map((ele, index)=>{
                 return(
-                    <Button>
-                        <div name={`${i}`}>{ele}</div>
-                        <p>{i}번째</p>
+                    //키 값은 index뿐만 아니라 각각의 const성 텍스트도 포함하면 좋음
+                    <Button key={ele.cardNum}>
+                        <div>{ele.cardNum}</div>
+                        <p>{index}번째</p>
                     </Button>
                 )
             })
