@@ -7,7 +7,7 @@ const nav = [
         link : '/',
     },
     {
-        pageName : '페이지',
+        pageName : '서브페이지',
         link : '/subPage',
     },
     {
@@ -22,14 +22,18 @@ const nav = [
         pageName : '푸드',
         link : '/blog/food',
     },
+    {
+        pageName : '무비리스트',
+        link : '/movieList',
+    },
 
 ];
 
 const Header = (props) => {
 
-    // const {
-    //     children
-    // } = props;
+    const {
+        children
+    } = props;
     const router = useRouter();
     return (
         <>
@@ -50,7 +54,7 @@ const Header = (props) => {
                 <HeaderBtn onClick={()=>{router.push("/blog/food")}}>푸드 이동하기</HeaderBtn>
                 <HeaderBtn onClick={()=>{router.push("/")}}>메인 이동</HeaderBtn> */}
             </HeaderBlock>
-            {props.children}
+            {children}
         </>
         
     );
