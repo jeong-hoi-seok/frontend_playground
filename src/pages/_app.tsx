@@ -3,12 +3,5 @@ import type { AppProps } from "next/app";
 import Header from '@/components/Header';
 
 export default function App({ Component, pageProps }: AppProps) {
-  // {
-  //   children
-  // } =props;
-  return(
-    <Header>
-      <Component {...pageProps} />;
-    </Header>
-    )
+  return(<Component {...pageProps} />)
 }
