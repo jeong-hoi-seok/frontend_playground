@@ -14,6 +14,7 @@ const Header = (props) => {
         children
     } = props;
 
+
     const router = useRouter();
     return (
         <>
@@ -26,7 +27,7 @@ const Header = (props) => {
                 })
             }
         </HeaderList>
-         {children}
+        {children}
         </>
     );
 };
