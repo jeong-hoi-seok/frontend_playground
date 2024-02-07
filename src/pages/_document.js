@@ -16,7 +16,6 @@ export default function Document() {
   return (
     <Html lang="ko">
       <Head>
-        
       </Head>
       <body>
         <Main />
