@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 
 import styled from "styled-components";
-// import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import VideoList from "@/pages/videoList/index";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,9 +18,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <Test>
-          dd2
-        </Test>
+        <VideoList />
       </main>
     </>
   );

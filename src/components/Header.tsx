@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
+
 class Header extends Component {
 
-    // const router = Router;
     render() {
+        console.log('11')
         return (
             <HeaderList>
                 <List>1221</List>
