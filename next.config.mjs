@@ -4,9 +4,9 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
-  // images: {
-  //   domains: ['static.tvmaze.com'],
-  // },
+  images: {
+    domains: ['i.ytimg.com'],
+  },
 };
 
 export default nextConfig;
