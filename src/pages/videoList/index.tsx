@@ -159,17 +159,19 @@ const VideoWrap = styled.div`
 //ssr에서 api 통신
 export const getServerSideProps = (async () =>{
 
+    axios.defaults.baseURL = 'https://www.googleapis.com/youtube/v3'
     let rendData ;
     try{
-        const res = await axios.get('https://www.googleapis.com/youtube/v3/search?&key=AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA', {
+        const res = await axios.get('/search', {
             params : {
                 part: 'snippet',
-                q : 'kpop+music',
+                q : 'kpop+official',
                 chart: 'mostPopular',
                 maxResults: 7,
                 type : 'video',
                 regionCode : 'KR',
                 fields : "items(id, snippet(title, channelId, thumbnails))",
+                key : 'AIzaSyAYCYyS2VblCN4wUyrWsaVtLaYVODhY5CI'
             }
         })
         rendData = res.data;
