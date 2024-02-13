@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
@@ -7,6 +7,9 @@ import ReactPlayer from "react-player/youtube";
 
 import {Provider, useSelector, useDispatch } from "react-redux";
 import store from "@/store/index";
+import { urlActions } from "@/store/index";
+import { authActions } from "@/store/index";
+import Link from "next/link";
 
 
 const utubeVideoList = ( props ) => {
@@ -20,15 +23,26 @@ const utubeVideoList = ( props ) => {
     } = props;
 
     //리덕스 관련
-    const rdxUrl = useSelector(state => state.url);
-    const rdxShow = useSelector(state => state.showUrl);
+    const rdxUrl = useSelector(state => state.url.url);
+    const rdxShow = useSelector(state => state.url.showUrl);
+
     const rdxDispatch = useDispatch();//store에 action을 보냄
-    const changeUrl = () => {
-        rdxDispatch({ type : 'change'})
+
+    //비디오 url 변경
+    const changeUrl = (changeUrl) => {
+        rdxDispatch(urlActions.change(changeUrl))
+    }
+    //비디오 url 리셋
+    const resetUrl = () => {
+        rdxDispatch(urlActions.reset())
     }
 
-    const resetUrl = () => {
-        rdxDispatch({ type : 'reset', showUrl : false})
+
+
+    //버튼 테스트하기
+    const auth = useSelector(state => state.auth.checked);
+    const checkedBtn = () => {
+        rdxDispatch(authActions.testToggle())
     }
 
 
@@ -70,9 +84,12 @@ const utubeVideoList = ( props ) => {
     // }
 
     return (
-        <Provider store={store}>
-            <button onClick={()=>{ router.back() }}>뒤로가기</button>
-            <div>비디오 상세 링크 : {rdxUrl}</div>
+        <>
+            <button onClick={()=>{ router.back() }} style={{display : 'block', width: '100px', height: '50px', margin: '0 0 20px', cursor: 'pointer'}}>뒤로가기</button>
+            <button onClick={checkedBtn} style={{width: 'fit-content', height: '50px', backgroundColor: '#444', color :'#fff', border: '0', padding: '10px', cursor: 'pointer'}}>redux버튼 : {`${auth}`}</button>
+            <LinkInfoBox>
+                비디오 상세 링크 : <GoLink href={`${rdxUrl === '초기'? '' : rdxUrl}`}>{rdxUrl}</GoLink>
+            </LinkInfoBox>
             <ContainBox>
                 <ThumList>
                     {
@@ -80,10 +97,13 @@ const utubeVideoList = ( props ) => {
                             return(
                                 <Item
                                     key={idx}
+                                    // onClick={()=>{
+                                    //     rdxDispatch({ type : 'change', addUrl: `https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`})
+                                    //     // console.log(ref)
+                                    //     // console.log(ref.current)
+                                    // }}
                                     onClick={()=>{
-                                        rdxDispatch({ type : 'change', addUrl: `https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`})
-                                        // console.log(ref)
-                                        // console.log(ref.current)
+                                        changeUrl(`https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`);
                                     }}
                                 >
                                     <Image
@@ -111,10 +131,18 @@ const utubeVideoList = ( props ) => {
                     />
                 </VideoPlay>
             }
-        </Provider>
+        </>
     )
 }
 
+const LinkInfoBox = styled.div`
+    padding: 10px 0;
+    font-size: 20px;
+    font-weight : 600;
+`
+const GoLink = styled(Link)`
+    color: #25bcc7;
+`
 
 const ContainBox = styled.div`
     width: 100%;
@@ -150,11 +178,28 @@ const BackgroundBox = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    background-color: rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translate(0px, 0px) scale(0);
+    background-color: rgba(0, 0, 0, 0.7);
+    animation-name: gIYIae;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
     cursor: pointer;
+    @keyframes gIYIae {
+        0% {
+            opacity: 0;
+            transform: translate(100%, 100%) scale(0);
+        }
+        100%{
+            opacity: 1;
+            transform: translate(0px, 0px) scale(1);
+        }
+    }
 `
 const VideoWrap = styled.div`
 `
+
+
 
 //ssr에서 api 통신
 export const getServerSideProps = (async () =>{

@@ -1,35 +1,88 @@
-import { createStore } from 'redux';
+// import { createStore, combineReducers } from 'redux';
+import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { stat } from 'fs';
 
-const initialState = {url : '초기', showUrl : false }
 
+// 툴킷
+const initialUrlState = {url : '초기', showUrl : false }
+const initialAuthState = {checked : false }
 
-const urlReducer = (state = initialState, action) => {
-    if (action.type === 'change')
-    {
-        return{
-            url : action.addUrl,
-            showUrl : true
+const urlSilce = createSlice({
+    name : 'url',
+    initialState : initialUrlState,
+    reducers : {
+        change(state, action) {
+            state.url = action.payload;
+            state.showUrl = !state.showUrl;
+        },
+        reset(state) {
+            state.url = state.url;
+            state.showUrl = !state.showUrl;
+        },
+    }
+});
+
+const authSlice = createSlice({
+    name : 'auth',
+    initialState : initialAuthState,
+    reducers : {
+        login(state) {
+            state.checked = true;
+        },
+        logout(state) {
+            state.checked = false;
+        },
+        testToggle(state)
+        {
+            state.checked = !state.checked;
         }
     }
+})
 
-    if (action.type === 'reset')
-    {
-        return {
-            url : state.url,
-            showUrl : action.showUrl
-        }
+
+const store = configureStore({
+    reducer : {
+        url : urlSilce.reducer,
+        auth : authSlice.reducer
     }
+});
 
-    return state;
-}
 
-const store = createStore(urlReducer);
-
+export const urlActions = urlSilce.actions;
+export const authActions = authSlice.actions;
 export default store;
 
 
-// ===========================================
 
+// ===========================================
+//툴킷 사용 전 
+
+// const urlReducer = (state = initialState, action) => {
+//     if (action.type === 'change')
+//     {
+//         return{
+//             url : action.addUrl,
+//             showUrl : !state.showUrl,
+//         }
+//     }
+ 
+//     if (action.type === 'reset')
+//     {
+//         return {
+//             url : state.url,
+//             showUrl : !state.showUrl,
+//         }
+//     }
+
+//     return state;
+// }
+
+
+
+
+
+// =====================================================================
+// react환경 아닌 곳에서 
 // const redux = require('redux');
 
 
