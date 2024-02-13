@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
-
 import ReactPlayer from "react-player/youtube";
 
-import { Provider } from "react";
+import {Provider, useSelector, useDispatch } from "react-redux";
+import store from "@/store/index";
 
 
 const utubeVideoList = ( props ) => {
@@ -19,44 +19,60 @@ const utubeVideoList = ( props ) => {
         rendData
     } = props;
 
+    //리덕스 관련
+    const rdxUrl = useSelector(state => state.url);
+    const rdxShow = useSelector(state => state.showUrl);
+    const rdxDispatch = useDispatch();//store에 action을 보냄
+    const changeUrl = () => {
+        rdxDispatch({ type : 'change'})
+    }
 
-    // console.log('체크', rendData)
+    const resetUrl = () => {
+        rdxDispatch({ type : 'reset', showUrl : false})
+    }
+
+
+
+
 
     useEffect(()=>{
-        
+        setList(rendData.items); // 얘는 ssr에서 가져온 data
+        // getVideoInfo(); // csr에서 가져온 data
+
         if(typeof window !== 'undefined')
         {
-            setList(rendData.items); // 얘는 ssr에서 가져온 data
-            // getVideoInfo(); // csr에서 가져온 data
         }
     }, []);
 
 
-    const getVideoInfo = async ()=>{
-        try
-        {
-            let res = await axios.get('https://www.googleapis.com/youtube/v3/search?&key=AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA',{
-                params : {
-                    part: 'snippet',
-                    q : 'kpop+music',
-                    chart: 'mostPopular',
-                    maxResults: 5,
-                    // type : 'video',
-                    regionCode : 'KR',
-                    fields : "items(id, snippet(title, channelId, thumbnails))",
-                }
-            });
-            setList(res.data.items)
-        }
-        catch(err)
-        {
-            console.log('err')
-        }
-    }
+
+    //csr 에서 api호출
+    // const getVideoInfo = async ()=>{
+    //     try
+    //     {
+    //         let res = await axios.get('https://www.googleapis.com/youtube/v3/search?&key=AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA',{
+    //             params : {
+    //                 part: 'snippet',
+    //                 q : 'kpop+music',
+    //                 chart: 'mostPopular',
+    //                 maxResults: 5,
+    //                 // type : 'video',
+    //                 regionCode : 'KR',
+    //                 fields : "items(id, snippet(title, channelId, thumbnails))",
+    //             }
+    //         });
+    //         setList(res.data.items)
+    //     }
+    //     catch(err)
+    //     {
+    //         console.log('err')
+    //     }
+    // }
 
     return (
-        <>
-            {/* <button onClick={()=>{ router.back() }}>뒤로가기</button> */}
+        <Provider store={store}>
+            <button onClick={()=>{ router.back() }}>뒤로가기</button>
+            <div>비디오 상세 링크 : {rdxUrl}</div>
             <ContainBox>
                 <ThumList>
                     {
@@ -65,17 +81,16 @@ const utubeVideoList = ( props ) => {
                                 <Item
                                     key={idx}
                                     onClick={()=>{
+                                        rdxDispatch({ type : 'change', addUrl: `https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`})
                                         // console.log(ref)
                                         // console.log(ref.current)
-                                        setLink(`https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`);
-                                        document.querySelector('.boxbox').style.display = 'block';
                                     }}
                                 >
                                     <Image
                                         src={item?.snippet?.thumbnails.high?.url || ''}
                                         fill={true}
                                         alt="image" 
-                                        sizes="(min-width: 768px) 100%, 100%"
+                                        sizes="(min-width: 768px) 100%, 100%" //이거안하면 오류?
                                         priority
                                     />
                                 </Item>
@@ -84,24 +99,19 @@ const utubeVideoList = ( props ) => {
                     }
                 </ThumList>
             </ContainBox>
-            <VideoPlay className="boxbox" style={{display : 'none'}}>
-                {/* {
-                    // console.log('밖', ref);
-                    <div>{link}</div>
-                } */}
-                <ReactPlayer
-                    url={link}
-                    style={{position: 'absolute', top: '50%', left : '50%', transform: 'translate(-50%, -50%)', zIndex: '10'}}
-                    // wrapper={VideoWrap}
-                />
-                <BackgroundBox
-                    onClick={()=>{
-                        document.querySelector('.boxbox').style.display = 'none';
-                        setLink('');
-                    }}
-                />
-            </VideoPlay>
-        </>
+            {
+                rdxShow && <VideoPlay className="boxbox">
+                    <ReactPlayer
+                        url={rdxUrl}
+                        style={{position: 'absolute', top: '50%', left : '50%', transform: 'translate(-50%, -50%)', zIndex: '10'}}
+                        // wrapper={VideoWrap}
+                    />
+                    <BackgroundBox
+                        onClick={resetUrl}
+                    />
+                </VideoPlay>
+            }
+        </Provider>
     )
 }
 
@@ -146,6 +156,7 @@ const BackgroundBox = styled.div`
 const VideoWrap = styled.div`
 `
 
+//ssr에서 api 통신
 export const getServerSideProps = (async () =>{
 
     let rendData ;
@@ -155,8 +166,8 @@ export const getServerSideProps = (async () =>{
                 part: 'snippet',
                 q : 'kpop+music',
                 chart: 'mostPopular',
-                maxResults: 5,
-                // type : 'video',
+                maxResults: 7,
+                type : 'video',
                 regionCode : 'KR',
                 fields : "items(id, snippet(title, channelId, thumbnails))",
             }

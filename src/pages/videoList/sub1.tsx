@@ -6,21 +6,50 @@ import Image from "next/image";
 
 import ReactPlayer from "react-player/youtube";
 
-import { Provider } from "react";
+import {Provider, useSelector, useDispatch } from "react-redux";
 
 
-const sub1 = () => {
+// import { Provider } from "react-redux";
+import store from "@/store/index";
+
+
+
+const sub1 = ( props ) => {
+
+    const rdxUrl = useSelector(state => state.url);
+    const rdxShow = useSelector(state => state.showUrl);
+
+    const rdxDispatch = useDispatch();//store에 action을 보냄
+    const changeUrl = () => {
+        rdxDispatch({ type : 'change'})
+    }
+
+    const resetUrl = () => {
+        rdxDispatch({ type : 'reset' })
+    }
+
+    // const togglePopupVideo = () => {
+    //     rdxDispatch({ type : 'toggle' })
+    // }
 
     const router = useRouter();
     const [list, setList] = useState([]);
-    // const {
-    //     test
-    // } = props;
+    const [link, setLink] = useState('');
+    const ref = useRef('');
+    const {
+        rendData
+    } = props;
 
-    console.log('체크')
+
+    // console.log('체크', rendData)
 
     useEffect(()=>{
-        // getVideoInfo()
+        
+        if(typeof window !== 'undefined')
+        {
+            setList(rendData.items); // 얘는 ssr에서 가져온 data
+            // getVideoInfo(); // csr에서 가져온 data
+        }
     }, []);
 
 
@@ -30,13 +59,14 @@ const sub1 = () => {
             let res = await axios.get('https://www.googleapis.com/youtube/v3/search?&key=AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA',{
                 params : {
                     part: 'snippet',
-                    q : 'kpop',
+                    q : 'kpop+music',
                     chart: 'mostPopular',
-                    maxResults: 1,
+                    maxResults: 5,
+                    // type : 'video',
+                    regionCode : 'KR',
                     fields : "items(id, snippet(title, channelId, thumbnails))",
                 }
             });
-            console.log(res.data.items)
             setList(res.data.items)
         }
         catch(err)
@@ -45,53 +75,61 @@ const sub1 = () => {
         }
     }
 
-
     return (
-        <>
-            {/* <button onClick={()=>{ router.back() }}>뒤로가기</button> */}
+        <Provider>
+            <button onClick={()=>{ router.back() }}>뒤로가기</button>
+            <div>비디오 상세 링크 : {rdxUrl}</div>
             <ContainBox>
-                <VideoList>
+                <ThumList>
                     {
                         list.map((item, idx) =>{
                             return(
-                                
-                                <Item key={idx}>
-                                    <Image src={item?.snippet?.thumbnails.high?.url || ''} fill={true} alt="image"></Image>
-                                    <ReactPlayer
-                                        url={`https://www.youtube.com/watch?v=${item.id.videoId}`}
-                                        // style={}
-                                        // wrapper={div} 컨테이너 요소
-                                        //
+                                <Item
+                                    key={idx}
+                                    onClick={()=>{
+                                        rdxDispatch({ type : 'change', addUrl: `https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`})
+                                        console.log(rdxUrl)
+                                        // console.log(ref)
+                                        // console.log(ref.current)
+
+                                    }}
+                                >
+                                    <Image
+                                        src={item?.snippet?.thumbnails.high?.url || ''}
+                                        fill={true}
+                                        alt="image" 
+                                        sizes="(min-width: 768px) 100%, 100%"
+                                        priority
                                     />
                                 </Item>
                             )
                         })
                     }
-                </VideoList>
+                </ThumList>
             </ContainBox>
-        </>
+            {
+                rdxShow && <VideoPlay className="boxbox">
+                    <ReactPlayer
+                        url={rdxUrl}
+                        style={{position: 'absolute', top: '50%', left : '50%', transform: 'translate(-50%, -50%)', zIndex: '10'}}
+                        // wrapper={VideoWrap}
+                    />
+                    <BackgroundBox
+                        onClick={resetUrl}
+                    />
+                </VideoPlay>
+            }
+        </Provider>
     )
 }
 
 
-    // <iframe
-    //     id="ytplayer"
-    //     type="text/html"
-    //     width="720"
-    //     height="405"
-    //     src={item.snippet.thumbnails.high.url}
-    //     frameborder="0"
-    //     allowfullscreen="allowfullscreen"
-    // />
-
-
-
-const ContainBox = styled.section`
+const ContainBox = styled.div`
     width: 100%;
     height: 100vh;
     background-color: #444;
 `
-const VideoList = styled.ul`
+const ThumList = styled.ul`
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -104,13 +142,54 @@ const Item = styled.li`
     position: relative;
     list-style: none;
     height: 300px;
+    cursor: pointer;
 `
 
-export const getServerSideProps = (async ({}) =>{
-    const test = 1;
+const VideoPlay = styled.div`
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+`
+const BackgroundBox = styled.div`
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.5);
+    cursor: pointer;
+`
+const VideoWrap = styled.div`
+`
+
+export const getServerSideProps = (async () =>{
+
+    let rendData ;
+    try{
+        const res = await axios.get('https://www.googleapis.com/youtube/v3/search?&key=AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA', {
+            params : {
+                part: 'snippet',
+                q : 'kpop+music',
+                chart: 'mostPopular',
+                maxResults: 5,
+                // type : 'video',
+                regionCode : 'KR',
+                fields : "items(id, snippet(title, channelId, thumbnails))",
+            }
+        })
+        rendData = res.data;
+    }
+    catch(err)
+    {
+        console.log('err')
+    }
+
+
     return{
         props : {
-            test
+            rendData
         }
     }
 })
