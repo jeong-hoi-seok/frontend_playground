@@ -1,27 +1,28 @@
 // import { createStore, combineReducers } from 'redux';
 import { createSlice, configureStore } from '@reduxjs/toolkit';
-import { stat } from 'fs';
 
 
-// 툴킷
-const initialUrlState = {url : '초기', showUrl : false }
+// 툴킷사용 코드
+const initialUrlState = {url : '초기', showType : false }
 const initialAuthState = {checked : false }
 
+//유튜브 url 관련 slice
 const urlSilce = createSlice({
     name : 'url',
     initialState : initialUrlState,
     reducers : {
         change(state, action) {
             state.url = action.payload;
-            state.showUrl = !state.showUrl;
+            state.showType = !state.showType;
         },
         reset(state) {
             state.url = state.url;
-            state.showUrl = !state.showUrl;
+            state.showType = !state.showType;
         },
     }
 });
 
+//auth 불리언 slice
 const authSlice = createSlice({
     name : 'auth',
     initialState : initialAuthState,
@@ -42,8 +43,8 @@ const authSlice = createSlice({
 
 const store = configureStore({
     reducer : {
-        url : urlSilce.reducer,
-        auth : authSlice.reducer
+        storeUrl : urlSilce.reducer,
+        storeAuth : authSlice.reducer
     }
 });
 
@@ -56,13 +57,13 @@ export default store;
 
 // ===========================================
 //툴킷 사용 전 
-
+// const initialUrlState = {url : '초기', showType : false }
 // const urlReducer = (state = initialState, action) => {
 //     if (action.type === 'change')
 //     {
 //         return{
 //             url : action.addUrl,
-//             showUrl : !state.showUrl,
+//             showType : !state.showType,
 //         }
 //     }
  
@@ -70,7 +71,7 @@ export default store;
 //     {
 //         return {
 //             url : state.url,
-//             showUrl : !state.showUrl,
+//             showType : !state.showType,
 //         }
 //     }
 
@@ -83,9 +84,8 @@ export default store;
 
 // =====================================================================
 // react환경 아닌 곳에서 
+
 // const redux = require('redux');
-
-
 // const counterReducer = (state = { url : ''}, action) => {
 //     if (action.type === 'test')
 //     {
@@ -96,12 +96,10 @@ export default store;
 // };
 
 // const store = redux.createStore(counterReducer);
-
 // const counterSubscriber = () => {
 //     const latestState = store.getState();
 //     console.log(latestState)
 // }
 
 // store.subscribe(counterSubscriber); // 메소드는 함수를 받아 변경될 때 마다 실행
-
 // store.dispatch({type : 'test'})
