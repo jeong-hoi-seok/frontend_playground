@@ -12,52 +12,86 @@ import { authActions } from "@/store/index";
 import Link from "next/link";
 
 
-const utubeVideoList = ( props ) => {
+interface IitemsProps {
+    id : {
+        kind : string;
+        videoId?: string;
+        playlistId?: string;
+    };
+    snippet : {
+        channelId: string;
+        title: string;
+        thumbnails: {
+            default: {
+                url: string;
+                width: number;
+                height: number;
+            };
+            medium: {
+                url: string;
+                width: number;
+                height: number;
+            };
+            high: {
+                url: string;
+                width: number;
+                height: number;
+            }
+        }
+    }
+}
+
+interface IProps {
+    rendData: {
+        items : IitemsProps[]
+    }
+    
+}
+
+const utubeVideoList = ( props : IProps ) => {
+
+    // console.log('csr 콘솔', props)
 
     const router = useRouter();
-    const [list, setList] = useState([]);
-    const [link, setLink] = useState('');
-    const ref = useRef('');
+    const [list, setList] = useState<IitemsProps[]>([]);
+    const [link, setLink] = useState<null | string>(null);
+    const elRef = useRef<HTMLButtonElement | undefined>();
+
     const {
         rendData
     } = props;
 
     //리덕스 관련
-    const rdxUrl = useSelector(state => state.url.url);
-    const rdxShow = useSelector(state => state.url.showUrl);
-
-    const rdxDispatch = useDispatch();//store에 action을 보냄
+    const rdxUrl = useSelector((state: {storeUrl : { url: string } }) => state.storeUrl.url); // url 변경
+    const rdxShow = useSelector((state : {storeUrl : {showType : boolean}}) => state.storeUrl.showType); // show 불리언 값
+    const rdxDispatch = useDispatch(); //store에 action을 보냄
 
     //비디오 url 변경
-    const changeUrl = (changeUrl) => {
-        rdxDispatch(urlActions.change(changeUrl))
+    const changeUrl = (changeUrl : string) => {
+        rdxDispatch(urlActions.change(changeUrl));
     }
     //비디오 url 리셋
     const resetUrl = () => {
-        rdxDispatch(urlActions.reset())
+        rdxDispatch(urlActions.reset());
     }
-
 
 
     //버튼 테스트하기
-    const auth = useSelector(state => state.auth.checked);
+    const auth = useSelector((state : {storeAuth : {checked : boolean}}) => state.storeAuth.checked);
     const checkedBtn = () => {
-        rdxDispatch(authActions.testToggle())
+        rdxDispatch(authActions.testToggle());
     }
-
-
 
 
 
     useEffect(()=>{
-        setList(rendData.items); // 얘는 ssr에서 가져온 data
+        setList(rendData.items); // ssr에서 가져온 data
         // getVideoInfo(); // csr에서 가져온 data
 
         if(typeof window !== 'undefined')
         {
         }
     }, []);
-
 
 
     //csr 에서 api호출
@@ -85,29 +119,24 @@ const utubeVideoList = ( props ) => {
 
     return (
         <>
-            <button onClick={()=>{ router.back() }} style={{display : 'block', width: '100px', height: '50px', margin: '0 0 20px', cursor: 'pointer'}}>뒤로가기</button>
+            <button ref={elRef} onClick={()=>{ router.back() }} style={{display : 'block', width: '100px', height: '50px', margin: '0 0 20px', cursor: 'pointer'}}>뒤로가기</button>
             <button onClick={checkedBtn} style={{width: 'fit-content', height: '50px', backgroundColor: '#444', color :'#fff', border: '0', padding: '10px', cursor: 'pointer'}}>redux버튼 : {`${auth}`}</button>
             <LinkInfoBox>
-                비디오 상세 링크 : <GoLink href={`${rdxUrl === '초기'? '' : rdxUrl}`}>{rdxUrl}</GoLink>
+                비디오 상세 링크 : <GoLink href={`${rdxUrl === '초기'? '' : rdxUrl}`} target="_blank">{rdxUrl}</GoLink>
             </LinkInfoBox>
             <ContainBox>
                 <ThumList>
                     {
-                        list.map((item, idx) =>{
+                        list.map((el, idx) =>{
                             return(
                                 <Item
                                     key={idx}
-                                    // onClick={()=>{
-                                    //     rdxDispatch({ type : 'change', addUrl: `https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`})
-                                    //     // console.log(ref)
-                                    //     // console.log(ref.current)
-                                    // }}
                                     onClick={()=>{
-                                        changeUrl(`https://www.youtube.com/watch?v=${item?.id?.videoId || item.id.playlistId}`);
+                                        changeUrl(`https://www.youtube.com/watch?v=${el.id?.videoId || el.id?.playlistId}`);
                                     }}
                                 >
                                     <Image
-                                        src={item?.snippet?.thumbnails.high?.url || ''}
+                                        src={el.snippet.thumbnails.high.url || ''}
                                         fill={true}
                                         alt="image" 
                                         sizes="(min-width: 768px) 100%, 100%" //이거안하면 오류?
@@ -196,17 +225,16 @@ const BackgroundBox = styled.div`
         }
     }
 `
-const VideoWrap = styled.div`
-`
+
 
 
 
 //ssr에서 api 통신
 export const getServerSideProps = (async () =>{
 
-    axios.defaults.baseURL = 'https://www.googleapis.com/youtube/v3'
+    axios.defaults.baseURL = 'https://www.googleapis.com/youtube/v3';
     let rendData ;
-    try{
+    try {
         const res = await axios.get('/search', {
             params : {
                 part: 'snippet',
@@ -215,19 +243,19 @@ export const getServerSideProps = (async () =>{
                 maxResults: 7,
                 type : 'video',
                 regionCode : 'KR',
-                fields : "items(id, snippet(title, channelId, thumbnails))",
-                key : 'AIzaSyAYCYyS2VblCN4wUyrWsaVtLaYVODhY5CI'
+                fields : "items(id(videoId), snippet(thumbnails(high)))",
+                key : 'AIzaSyBYoWjfZ_VidFBs3XAxMALZWn34kd3LZPA'
             }
         })
         rendData = res.data;
     }
-    catch(err)
+    catch (err)
     {
         console.log('err')
     }
 
 
-    return{
+    return {
         props : {
             rendData
         }
