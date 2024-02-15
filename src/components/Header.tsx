@@ -9,7 +9,7 @@ const navList = [
     }
 ]
 
-const Header = (props) => {
+const Header = (props : any ) => {
     const {
         children
     } = props;
