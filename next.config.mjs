@@ -5,9 +5,8 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
-    domains: ['static.tvmaze.com'],
+    domains: ['i.ytimg.com'],
   },
 };
-// const withImages = require('next-images');
-// module.exports = withImages();
+
 export default nextConfig;
